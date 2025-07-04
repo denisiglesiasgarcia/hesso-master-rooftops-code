@@ -1,4 +1,4 @@
-# Geneva Rooftop Segmentation Pipeline
+# Geneva Rooftop Segmentation Pipeline (Identification des parties utiles des toitures pour le solaire par machine learning)
 
 A comprehensive pipeline for processing aerial imagery and cadastral data to create high-quality datasets for rooftop segmentation in Geneva, Switzerland.
 
