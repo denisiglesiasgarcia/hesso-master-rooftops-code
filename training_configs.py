@@ -3012,3 +3012,952 @@ CONFIGS = {
 
 }
 
+"""
+pkill -u $USER python
+cd github/tm_rooftops/notebooks
+conda activate pytorch
+
+batch A:
+CUDA_VISIBLE_DEVICES=3 nohup python3 02_training_v21.py --config unet_resnext101_32x8d_imagenet unet_se_resnext101_32x4d_imagenet unet_densenet201_imagenet --gpu 0 > training/99_logs/ROOFTOP_BATCH1_$(date +%Y%m%d_%H%M%S).log 2>&1 &
+CUDA_VISIBLE_DEVICES=2 nohup python3 02_training_v21.py --config deeplabv3_efficientnet-b4_imagenet unet_resnext50_32x4d_imagenet unet_se_resnet152_imagenet unet_inceptionresnetv2_imagenet --gpu 0 > training/99_logs/ROOFTOP_BATCH2_$(date +%Y%m%d_%H%M%S).log 2>&1 &
+CUDA_VISIBLE_DEVICES=1 nohup python3 02_training_v21.py --config unet_regnetx_032_imagenet deeplabv3_efficientnet-b3_imagenet unet_res2net101_26w_4s_imagenet deeplabv3_resnet152_imagenet --gpu 0 > training/99_logs/ROOFTOP_BATCH3_$(date +%Y%m%d_%H%M%S).log 2>&1 &
+CUDA_VISIBLE_DEVICES=0 nohup python3 02_training_v21.py --config unet_resnest200e_imagenet unet_timm_efficientnet_b5_imagenet --gpu 0 > training/99_logs/ROOFTOP_BATCH4_$(date +%Y%m%d_%H%M%S).log 2>&1 &
+
+batch B:
+CUDA_VISIBLE_DEVICES=3 nohup python3 02_training_v21.py --config segformer_mit_b2_imagenet dpt_vit_base_imagenet --gpu 0 > training/99_logs/ROOFTOP_BATCH5_$(date +%Y%m%d_%H%M%S).log 2>&1 &
+CUDA_VISIBLE_DEVICES=2 nohup python3 02_training_v21.py --config upernet_convnext_base_imagenet unet_fastvit_t8_imagenet  --gpu 0 > training/99_logs/ROOFTOP_BATCH6_$(date +%Y%m%d_%H%M%S).log 2>&1 & unet_fastvit_t8_imagenet refaire a cause mauvaise manip
+
+batch C:
+CUDA_VISIBLE_DEVICES=0 nohup python3 02_training_v21.py --config unet_fastvit_t8_imagenet unet_mobilenet_v2_imagenet unet_mobileone_s0_imagenet manet_resnet34_imagenet --gpu 0 > training/99_logs/ROOFTOP_BATCH7_$(date +%Y%m%d_%H%M%S).log 2>&1 &
+CUDA_VISIBLE_DEVICES=1 nohup python3 02_training_v21.py --config pan_resnet50_imagenet fpn_resnet101_imagenet linknet_resnet101_imagenet --gpu 0 > training/99_logs/ROOFTOP_BATCH8_$(date +%Y%m%d_%H%M%S).log 2>&1 &
+CUDA_VISIBLE_DEVICES=2 nohup python3 02_training_v21.py --config pspnet_resnext101_32x8d_imagenet unetplusplus_efficientnet_b5_imagenet --gpu 0 > training/99_logs/ROOFTOP_BATCH8_$(date +%Y%m%d_%H%M%S).log 2>&1 &
+
+batch D:
+CUDA_VISIBLE_DEVICES=2 nohup python3 02_training_v21.py --config upernet_convnext_base_imagenet fpn_resnet101_imagenet linknet_resnet101_imagenet unetplusplus_efficientnet_b5_imagenet unet_resnest200e_imagenet unet_fastvit_t8_imagenet unet_mobilenet_v2_imagenet unet_mobileone_s0_imagenet --gpu 0 > training/99_logs/ROOFTOP_BATCH9_$(date +%Y%m%d_%H%M%S).log 2>&1 &
+
+available backbones:
+['resnet18', 'resnet34', 'resnet50', 'resnet101', 'resnet152', 'resnext50_32x4d', 'resnext101_32x4d', 'resnext101_32x8d', 'resnext101_32x16d', 'resnext101_32x32d',
+'resnext101_32x48d', 'dpn68', 'dpn68b', 'dpn92', 'dpn98', 'dpn107', 'dpn131', 'vgg11', 'vgg11_bn', 'vgg13', 'vgg13_bn', 'vgg16', 'vgg16_bn', 'vgg19', 'vgg19_bn',
+'senet154', 'se_resnet50', 'se_resnet101', 'se_resnet152', 'se_resnext50_32x4d', 'se_resnext101_32x4d', 'densenet121', 'densenet169', 'densenet201', 'densenet161',
+'inceptionresnetv2', 'inceptionv4', 'efficientnet-b0', 'efficientnet-b1', 'efficientnet-b2', 'efficientnet-b3', 'efficientnet-b4', 'efficientnet-b5', 'efficientnet-b6',
+'efficientnet-b7', 'mobilenet_v2', 'xception', 'timm-efficientnet-b0', 'timm-efficientnet-b1', 'timm-efficientnet-b2', 'timm-efficientnet-b3', 'timm-efficientnet-b4',
+'timm-efficientnet-b5', 'timm-efficientnet-b6', 'timm-efficientnet-b7', 'timm-efficientnet-b8', 'timm-efficientnet-l2', 'timm-tf_efficientnet_lite0', 'timm-tf_efficientnet_lite1',
+'timm-tf_efficientnet_lite2', 'timm-tf_efficientnet_lite3', 'timm-tf_efficientnet_lite4', 'timm-resnest14d', 'timm-resnest26d', 'timm-resnest50d', 'timm-resnest101e',
+'timm-resnest200e', 'timm-resnest269e', 'timm-resnest50d_4s2x40d', 'timm-resnest50d_1s4x24d', 'timm-res2net50_26w_4s', 'timm-res2net101_26w_4s', 'timm-res2net50_26w_6s',
+'timm-res2net50_26w_8s', 'timm-res2net50_48w_2s', 'timm-res2net50_14w_8s', 'timm-res2next50', 'timm-regnetx_002', 'timm-regnetx_004', 'timm-regnetx_006', 'timm-regnetx_008',
+'timm-regnetx_016', 'timm-regnetx_032', 'timm-regnetx_040', 'timm-regnetx_064', 'timm-regnetx_080', 'timm-regnetx_120', 'timm-regnetx_160', 'timm-regnetx_320',
+'timm-regnety_002', 'timm-regnety_004', 'timm-regnety_006', 'timm-regnety_008', 'timm-regnety_016', 'timm-regnety_032', 'timm-regnety_040', 'timm-regnety_064',
+'timm-regnety_080', 'timm-regnety_120', 'timm-regnety_160', 'timm-regnety_320', 'timm-skresnet18', 'timm-skresnet34', 'timm-skresnext50_32x4d', 'timm-mobilenetv3_large_075',
+'timm-mobilenetv3_large_100', 'timm-mobilenetv3_large_minimal_100', 'timm-mobilenetv3_small_075', 'timm-mobilenetv3_small_100', 'timm-mobilenetv3_small_minimal_100',
+'timm-gernet_s', 'timm-gernet_m', 'timm-gernet_l', 'mit_b0', 'mit_b1', 'mit_b2', 'mit_b3', 'mit_b4', 'mit_b5', 'mobileone_s0', 'mobileone_s1', 'mobileone_s2', 'mobileone_s3', 'mobileone_s4']
+
+# UNet across all backbones
+CUDA_VISIBLE_DEVICES=0 nohup python3 02_training_v21.py --config unet_convnext_tiny_imagenet unet_mit_b2_imagenet unet_efficientnet_b3_imagenet unet_swin_tiny_imagenet --gpu 0 > training/99_logs/SOTA_UNET_ALL_BACKBONES_$(date +%Y%m%d_%H%M%S).log 2>&1 &
+
+# UNet++ across all backbones  
+CUDA_VISIBLE_DEVICES=2 nohup python3 02_training_v21.py --config unetplusplus_mit_b2_imagenet unetplusplus_efficientnet_b3_imagenet unetplusplus_swin_tiny_imagenet --gpu 0 > training/99_logs/SOTA_UNETPP_ALL_BACKBONES_$(date +%Y%m%d_%H%M%S).log 2>&1 &
+
+# MANet across all backbones
+CUDA_VISIBLE_DEVICES=2 nohup python3 02_training_v21.py --config manet_convnext_tiny_imagenet manet_mit_b2_imagenet manet_efficientnet_b3_imagenet manet_swin_tiny_imagenet --gpu 0 > training/99_logs/SOTA_MANET_ALL_BACKBONES_$(date +%Y%m%d_%H%M%S).log 2>&1 &
+
+# LinkNet across all backbones
+CUDA_VISIBLE_DEVICES=3 nohup python3 02_training_v21.py --config linknet_convnext_tiny_imagenet linknet_mit_b2_imagenet linknet_efficientnet_b3_imagenet linknet_swin_tiny_imagenet --gpu 0 > training/99_logs/SOTA_LINKNET_ALL_BACKBONES_$(date +%Y%m%d_%H%M%S).log 2>&1 &
+
+# FPN across all backbones
+CUDA_VISIBLE_DEVICES=0 nohup python3 02_training_v21.py --config fpn_convnext_tiny_imagenet fpn_mit_b2_imagenet fpn_efficientnet_b3_imagenet fpn_swin_tiny_imagenet --gpu 0 > training/99_logs/SOTA_FPN_ALL_BACKBONES_$(date +%Y%m%d_%H%M%S).log 2>&1 &
+
+# PAN across all backbones
+CUDA_VISIBLE_DEVICES=1 nohup python3 02_training_v21.py --config pan_convnext_tiny_imagenet pan_mit_b2_imagenet pan_efficientnet_b3_imagenet pan_swin_tiny_imagenet --gpu 0 > training/99_logs/SOTA_PAN_ALL_BACKBONES_$(date +%Y%m%d_%H%M%S).log 2>&1 &
+
+# PSPNet across all backbones
+CUDA_VISIBLE_DEVICES=2 nohup python3 02_training_v21.py --config pspnet_convnext_tiny_imagenet pspnet_mit_b2_imagenet pspnet_efficientnet_b3_imagenet pspnet_swin_tiny_imagenet --gpu 0 > training/99_logs/SOTA_PSPNET_ALL_BACKBONES_$(date +%Y%m%d_%H%M%S).log 2>&1 &
+
+# DeepLabV3+ across all backbones
+CUDA_VISIBLE_DEVICES=3 nohup python3 02_training_v21.py --config deeplabv3_convnext_tiny_imagenet deeplabv3_mit_b2_imagenet deeplabv3_efficientnet_b3_native_imagenet deeplabv3_swin_tiny_imagenet --gpu 0 > training/99_logs/SOTA_DEEPLABV3_ALL_BACKBONES_$(date +%Y%m%d_%H%M%S).log 2>&1 &
+
+# DPT across all backbones
+CUDA_VISIBLE_DEVICES=0 nohup python3 02_training_v21.py --config dpt_convnext_tiny_imagenet dpt_mit_b2_imagenet dpt_efficientnet_b3_imagenet dpt_swin_tiny_imagenet --gpu 0 > training/99_logs/SOTA_DPT_ALL_BACKBONES_$(date +%Y%m%d_%H%M%S).log 2>&1 &
+
+# UPerNet across all backbones
+CUDA_VISIBLE_DEVICES=1 nohup python3 02_training_v21.py --config upernet_convnext_tiny_imagenet upernet_mit_b2_imagenet upernet_efficientnet_b3_imagenet upernet_swin_tiny_imagenet --gpu 0 > training/99_logs/SOTA_UPERNET_ALL_BACKBONES_$(date +%Y%m%d_%H%M%S).log 2>&1 &
+
+# SegFormer across all backbones
+CUDA_VISIBLE_DEVICES=2 nohup python3 02_training_v21.py --config segformer_convnext_tiny_imagenet segformer_mit_b2_native_imagenet segformer_efficientnet_b3_imagenet segformer_swin_tiny_imagenet --gpu 0 > training/99_logs/SOTA_SEGFORMER_ALL_BACKBONES_$(date +%Y%m%d_%H%M%S).log 2>&1 &
+
+fait:
+unet_efficientvit_b2_imagenet
+unet_repvit_m1_imagenet
+unet_mambaout_small_imagenet
+unet_convnextv2_tiny_imagenet
+
+
+Notes:
+- unet_efficientnet-b5_imagenet enlever les unet avec efficientnet qui font pas bon ménage
+- unet_timm_efficientnet_b5_imagenet marche mais b6,b7,b8 OOM malgré batch_size=2
+
+Marche pas:
+# 2. EfficientNet-B3 + U-Net (~15M parameters)
+# Encoder: ~12M + Decoder: ~3M
+"unet_efficientnet-b3_imagenet": {
+    "architecture": "unet",
+    "backbone": "efficientnet-b3",
+    "encoder_weights": "imagenet",
+    "img_size": IMG_SIZE,
+    "num_classes": NUM_CLASSES,
+    "batch_size": BATCH_SIZE_UNET,
+    "learning_rate": 0.0001,
+    "epochs": EPOCHS,
+    "patience": 25,
+
+},
+
+Taille incompatible 224x224:
+# DPT with Swin Transformer (~88M parameters)
+# Encoder: ~87M + Decoder: ~1M
+"dpt_swin_base_imagenet": {
+    "architecture": "dpt",
+    "backbone": "tu-swin_base_patch4_window7_224.ms_in22k_ft_in1k",
+    "encoder_weights": "imagenet",
+    "img_size": IMG_SIZE,
+    "num_classes": NUM_CLASSES,
+    "batch_size": int(BATCH_SIZE_UNET/2),
+    "learning_rate": 0.00005,
+    "epochs": 1000,
+    "patience": 35,
+},
+
+# ValueError: UnetPlusPlus is not support encoder_name=mit_b2
+# MiT-B2 + U-Net++ (~29M parameters) - Transformer with nested connections
+# Encoder: ~25M + UNet++ Decoder: ~4M - Efficient transformer backbone
+"unetplusplus_mit_b2_imagenet": {
+    "architecture": "unetplusplus",
+    "backbone": "mit_b2",
+    "encoder_weights": "imagenet",
+    "img_size": IMG_SIZE,
+    "num_classes": NUM_CLASSES,
+    "batch_size": BATCH_SIZE_UNET,
+    "learning_rate": LEARNING_RATE,
+    "epochs": EPOCHS,
+    "patience": PATIENCE,
+
+},
+
+# ERROR in configuration unetplusplus_convnext_tiny_imagenet: Given groups=1, expected weight to be at least 1 at dimension 0, but got weight of size [0, 96, 3, 3] instead
+# ConvNeXt-Tiny + U-Net++ (~32M parameters) - Modern ConvNet with nested U-Net
+# Encoder: ~28M + UNet++ Decoder: ~4M - State-of-the-art ConvNet design
+"unetplusplus_convnext_tiny_imagenet": {
+    "architecture": "unetplusplus",
+    "backbone": "tu-convnext_tiny.fb_in22k_ft_in1k",
+    "encoder_weights": "imagenet",
+    "img_size": IMG_SIZE,
+    "num_classes": NUM_CLASSES,
+    "batch_size": BATCH_SIZE_UNET,
+    "learning_rate": LEARNING_RATE,
+    "epochs": EPOCHS,
+    "patience": PATIENCE,
+
+},
+
+tail -f nohup.out
+
+# ==================================== Anciens modèles ====================================
+    # -------------------------------------------------------------------------------------------
+    # ====================================
+    # U-NET ARCHITECTURE
+    # ====================================
+    # --- Lightweight Backbones (5-10M parameters) ---
+    # MobileNet V2 + U-Net (~5M parameters) - Excellent for edge deployment
+    # Encoder: ~3M + Decoder: ~2M - Optimized for mobile/embedded devices
+    "unet_mobilenet_v2_imagenet": {
+        "architecture": "unet",
+        "backbone": "mobilenet_v2",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": BATCH_SIZE_UNET * 2,
+        "learning_rate": LEARNING_RATE,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # MobileOne S0 + U-Net (~7M parameters) - Apple's ultra-fast backbone
+    # Encoder: ~5M + Decoder: ~2M - State-of-the-art mobile architecture
+    "unet_mobileone_s0_imagenet": {
+        "architecture": "unet",
+        "backbone": "mobileone_s0",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": BATCH_SIZE_UNET * 2,
+        "learning_rate": LEARNING_RATE,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+
+
+    # --- Medium Backbones (10-30M parameters) ---
+
+    # TIMM-RegNetX-032 + U-Net (~19M parameters) - Facebook's efficient design
+    # Encoder: ~16M + Decoder: ~3M - Optimized network design space
+    "unet_regnetx_032_imagenet": {
+        "architecture": "unet",
+        "backbone": "timm-regnetx_032",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": BATCH_SIZE_UNET,
+        "learning_rate": LEARNING_RATE,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # DenseNet201 + U-Net (~22M parameters) - Dense connectivity
+    # Encoder: ~20M + Decoder: ~2M - Feature reuse for parameter efficiency
+    "unet_densenet201_imagenet": {
+        "architecture": "unet",
+        "backbone": "densenet201",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": BATCH_SIZE_UNET,
+        "learning_rate": LEARNING_RATE,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+
+
+    # --- Large Backbones (50M+ parameters) ---
+    # SE-ResNeXt101_32x4d + U-Net (~53M parameters) - Squeeze-and-Excitation
+    # Encoder: ~49M + Decoder: ~4M - Channel attention mechanism
+    "unet_se_resnext101_32x4d_imagenet": {
+        "architecture": "unet",
+        "backbone": "se_resnext101_32x4d",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": BATCH_SIZE_UNET,
+        "learning_rate": LEARNING_RATE,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # InceptionResNetV2 + U-Net (~58M parameters) - Inception + ResNet hybrid
+    # Encoder: ~56M + Decoder: ~2M - Multi-scale feature extraction
+    "unet_inceptionresnetv2_imagenet": {
+        "architecture": "unet",
+        "backbone": "inceptionresnetv2",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": BATCH_SIZE_UNET,
+        "learning_rate": LEARNING_RATE,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # SE-ResNet152 + U-Net (~68M parameters) - Deep squeeze-and-excitation
+    # Encoder: ~66M + Decoder: ~2M - Very deep with channel attention
+    "unet_se_resnet152_imagenet": {
+        "architecture": "unet",
+        "backbone": "se_resnet152",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": BATCH_SIZE_UNET,
+        "learning_rate": LEARNING_RATE,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+
+
+    # ====================================
+    # U-NET++ ARCHITECTURE (Nested U-Net)
+    # ====================================
+    # EfficientNet-B3 + U-Net++ (~16M parameters) - Nested skip connections
+    # Encoder: ~12M + UNet++ Decoder: ~4M - Dense skip pathways
+    "unetplusplus_efficientnet_b3_imagenet": {
+        "architecture": "unetplusplus",
+        "backbone": "timm-efficientnet-b3",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": BATCH_SIZE_UNET,
+        "learning_rate": LEARNING_RATE,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # Swin-Tiny + U-Net++ (~33M parameters) - Transformer with nested skip paths
+    # Encoder: ~29M + UNet++ Decoder: ~4M - Hierarchical attention with dense connections
+    "unetplusplus_swin_tiny_imagenet": {
+        "architecture": "unetplusplus",
+        "backbone": "tu-swin_tiny_patch4_window7_224.ms_in22k_ft_in1k",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": BATCH_SIZE_UNET,
+        "learning_rate": LEARNING_RATE * 0.5,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # EfficientNet-B5 + U-Net++ (~68M parameters) - Large nested U-Net
+    # Encoder: ~66M + UNet++ Decoder: ~2M - Advanced nested skip connections
+    "unetplusplus_efficientnet_b5_imagenet": {
+        "architecture": "unetplusplus",
+        "backbone": "efficientnet-b5",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": int(BATCH_SIZE_UNET / 2),
+        "learning_rate": LEARNING_RATE,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # ====================================
+    # MA-NET ARCHITECTURE (Multi-scale Attention)
+    # ====================================
+    # ResNet34 + MANet (~22M parameters) - Multi-scale attention network
+    # Encoder: ~21M + MANet Decoder: ~1M - Great for capturing fine details
+    "manet_resnet34_imagenet": {
+        "architecture": "manet",
+        "backbone": "resnet34",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": int(BATCH_SIZE_UNET * 2),
+        "learning_rate": 0.01,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # EfficientNet-B3 + MANet (~14M parameters) - Efficient multi-scale attention
+    # Encoder: ~12M + MANet Decoder: ~2M - Balanced efficiency with attention
+    "manet_efficientnet_b3_imagenet": {
+        "architecture": "manet",
+        "backbone": "timm-efficientnet-b3",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": BATCH_SIZE_UNET,
+        "learning_rate": LEARNING_RATE,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # MiT-B2 + MANet (~27M parameters) - Transformer with multi-scale attention
+    # Encoder: ~25M + MANet Decoder: ~2M - Mix-transformer with attention mechanisms
+    "manet_mit_b2_imagenet": {
+        "architecture": "manet",
+        "backbone": "mit_b2",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": int(BATCH_SIZE_UNET / 2),
+        "learning_rate": LEARNING_RATE,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # ConvNeXt-Tiny + MANet (~30M parameters) - Modern ConvNet with attention
+    # Encoder: ~28M + MANet Decoder: ~2M - State-of-the-art ConvNet with multi-scale attention
+    "manet_convnext_tiny_imagenet": {
+        "architecture": "manet",
+        "backbone": "tu-convnext_tiny.fb_in22k_ft_in1k",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": BATCH_SIZE_UNET,
+        "learning_rate": LEARNING_RATE,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # Swin-Tiny + MANet (~31M parameters) - Transformer with dual attention
+    # Encoder: ~29M + MANet Decoder: ~2M - Hierarchical attention + multi-scale attention
+    "manet_swin_tiny_imagenet": {
+        "architecture": "manet",
+        "backbone": "tu-swin_tiny_patch4_window7_224.ms_in22k_ft_in1k",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": BATCH_SIZE_UNET,
+        "learning_rate": LEARNING_RATE * 0.5,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # ====================================
+    # LINKNET ARCHITECTURE (Efficient Encoder-Decoder)
+    # ====================================
+    # EfficientNet-B3 + LinkNet (~13M parameters) - Efficient encoder-decoder
+    # Encoder: ~12M + LinkNet Decoder: ~1M - Fast inference with good accuracy
+    "linknet_efficientnet_b3_imagenet": {
+        "architecture": "linknet",
+        "backbone": "timm-efficientnet-b3",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": BATCH_SIZE_UNET,
+        "learning_rate": LEARNING_RATE,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # MiT-B2 + LinkNet (~26M parameters) - Transformer with efficient decoder
+    # Encoder: ~25M + LinkNet Decoder: ~1M - Efficient mix-transformer design
+    "linknet_mit_b2_imagenet": {
+        "architecture": "linknet",
+        "backbone": "mit_b2",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": int(BATCH_SIZE_UNET / 2),
+        "learning_rate": LEARNING_RATE,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # ConvNeXt-Tiny + LinkNet (~29M parameters) - Modern ConvNet with efficient decoder
+    # Encoder: ~28M + LinkNet Decoder: ~1M - State-of-the-art ConvNet efficiency
+    "linknet_convnext_tiny_imagenet": {
+        "architecture": "linknet",
+        "backbone": "tu-convnext_tiny.fb_in22k_ft_in1k",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": BATCH_SIZE_UNET,
+        "learning_rate": LEARNING_RATE,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # Swin-Tiny + LinkNet (~30M parameters) - Transformer with lightweight decoder
+    # Encoder: ~29M + LinkNet Decoder: ~1M - Efficient hierarchical attention
+    "linknet_swin_tiny_imagenet": {
+        "architecture": "linknet",
+        "backbone": "tu-swin_tiny_patch4_window7_224.ms_in22k_ft_in1k",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": BATCH_SIZE_UNET,
+        "learning_rate": LEARNING_RATE * 0.5,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # ResNet101 + LinkNet (~42M parameters) - Deep efficient architecture
+    # Encoder: ~41M + LinkNet Decoder: ~1M - Fast inference with good accuracy
+    "linknet_resnet101_imagenet": {
+        "architecture": "linknet",
+        "backbone": "resnet101",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": BATCH_SIZE_UNET,
+        "learning_rate": LEARNING_RATE,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # ====================================
+    # FPN ARCHITECTURE (Feature Pyramid Network)
+    # ====================================
+    # EfficientNet-B3 + FPN (~14M parameters) - Multi-scale feature pyramids
+    # Encoder: ~12M + FPN Decoder: ~2M - State-of-the-art for multi-scale objects
+    "fpn_efficientnet_b3_imagenet": {
+        "architecture": "fpn",
+        "backbone": "timm-efficientnet-b3",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": BATCH_SIZE_UNET,
+        "learning_rate": LEARNING_RATE,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # MiT-B2 + FPN (~27M parameters) - Transformer with feature pyramids
+    # Encoder: ~25M + FPN Decoder: ~2M - Mix-transformer with multi-scale features
+    "fpn_mit_b2_imagenet": {
+        "architecture": "fpn",
+        "backbone": "mit_b2",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": int(BATCH_SIZE_UNET / 2),
+        "learning_rate": LEARNING_RATE,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # ConvNeXt-Tiny + FPN (~30M parameters) - Modern ConvNet with pyramids
+    # Encoder: ~28M + FPN Decoder: ~2M - State-of-the-art ConvNet with multi-scale features
+    "fpn_convnext_tiny_imagenet": {
+        "architecture": "fpn",
+        "backbone": "tu-convnext_tiny.fb_in22k_ft_in1k",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": BATCH_SIZE_UNET,
+        "learning_rate": LEARNING_RATE,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # Swin-Tiny + FPN (~31M parameters) - Transformer with feature pyramids
+    # Encoder: ~29M + FPN Decoder: ~2M - Hierarchical attention with multi-scale features
+    "fpn_swin_tiny_imagenet": {
+        "architecture": "fpn",
+        "backbone": "tu-swin_tiny_patch4_window7_224.ms_in22k_ft_in1k",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": BATCH_SIZE_UNET,
+        "learning_rate": LEARNING_RATE * 0.5,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # ResNet101 + FPN (~45M parameters) - Feature Pyramid Network
+    # Encoder: ~43M + FPN Decoder: ~2M - State-of-the-art for multi-scale objects
+    "fpn_resnet101_imagenet": {
+        "architecture": "fpn",
+        "backbone": "resnet101",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": BATCH_SIZE_UNET,
+        "learning_rate": LEARNING_RATE,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # ====================================
+    # PAN ARCHITECTURE (Pyramid Attention Network)
+    # ====================================
+    # EfficientNet-B3 + PAN (~14M parameters) - Pyramid attention
+    # Encoder: ~12M + PAN Decoder: ~2M - Excellent for high-resolution images
+    "pan_efficientnet_b3_imagenet": {
+        "architecture": "pan",
+        "backbone": "timm-efficientnet-b3",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": BATCH_SIZE_UNET,
+        "learning_rate": LEARNING_RATE,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # MiT-B2 + PAN (~27M parameters) - Transformer with pyramid attention
+    # Encoder: ~25M + PAN Decoder: ~2M - Mix-transformer with pyramid attention
+    "pan_mit_b2_imagenet": {
+        "architecture": "pan",
+        "backbone": "mit_b2",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": int(BATCH_SIZE_UNET / 2),
+        "learning_rate": LEARNING_RATE,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # ConvNeXt-Tiny + PAN (~30M parameters) - Modern ConvNet with pyramid attention
+    # Encoder: ~28M + PAN Decoder: ~2M - State-of-the-art ConvNet with attention pyramids
+    "pan_convnext_tiny_imagenet": {
+        "architecture": "pan",
+        "backbone": "tu-convnext_tiny.fb_in22k_ft_in1k",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": BATCH_SIZE_UNET,
+        "learning_rate": LEARNING_RATE,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # Swin-Tiny + PAN (~31M parameters) - Transformer with pyramid attention
+    # Encoder: ~29M + PAN Decoder: ~2M - Dual attention mechanisms
+    "pan_swin_tiny_imagenet": {
+        "architecture": "pan",
+        "backbone": "tu-swin_tiny_patch4_window7_224.ms_in22k_ft_in1k",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": BATCH_SIZE_UNET,
+        "learning_rate": LEARNING_RATE * 0.5,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # ResNet50 + PAN (~25M parameters) - Pyramid Attention Network
+    # Encoder: ~24M + PAN Decoder: ~1M - Excellent for high-resolution images
+    "pan_resnet50_imagenet": {
+        "architecture": "pan",
+        "backbone": "resnet50",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": int(BATCH_SIZE_UNET * 2),
+        "learning_rate": LEARNING_RATE,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # ====================================
+    # PSPNET ARCHITECTURE (Pyramid Scene Parsing)
+    # ====================================
+    # EfficientNet-B3 + PSPNet (~34M parameters) - Scene parsing
+    # Encoder: ~12M + PSPNet Decoder: ~22M - Excellent for scene understanding
+    "pspnet_efficientnet_b3_imagenet": {
+        "architecture": "pspnet",
+        "backbone": "timm-efficientnet-b3",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": BATCH_SIZE_UNET,
+        "learning_rate": LEARNING_RATE,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # MiT-B2 + PSPNet (~47M parameters) - Transformer with scene parsing
+    # Encoder: ~25M + PSPNet Decoder: ~22M - Mix-transformer with pyramid pooling
+    "pspnet_mit_b2_imagenet": {
+        "architecture": "pspnet",
+        "backbone": "mit_b2",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": int(BATCH_SIZE_UNET / 2),
+        "learning_rate": LEARNING_RATE,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # ConvNeXt-Tiny + PSPNet (~50M parameters) - Modern ConvNet with scene parsing
+    # Encoder: ~28M + PSPNet Decoder: ~22M - Larger decoder for scene understanding
+    "pspnet_convnext_tiny_imagenet": {
+        "architecture": "pspnet",
+        "backbone": "tu-convnext_tiny.fb_in22k_ft_in1k",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": int(BATCH_SIZE_UNET / 2),
+        "learning_rate": LEARNING_RATE,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # Swin-Tiny + PSPNet (~51M parameters) - Transformer with pyramid scene parsing
+    # Encoder: ~29M + PSPNet Decoder: ~22M - Hierarchical attention with scene parsing
+    "pspnet_swin_tiny_imagenet": {
+        "architecture": "pspnet",
+        "backbone": "tu-swin_tiny_patch4_window7_224.ms_in22k_ft_in1k",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": int(BATCH_SIZE_UNET / 2),
+        "learning_rate": LEARNING_RATE * 0.5,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # ResNeXt101_32x8d + PSPNet (~110M parameters) - Pyramid Scene Parsing
+    # Encoder: ~89M + PSPNet Decoder: ~21M - Excellent for scene understanding
+    "pspnet_resnext101_32x8d_imagenet": {
+        "architecture": "pspnet",
+        "backbone": "resnext101_32x8d",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": BATCH_SIZE_UNET,
+        "learning_rate": LEARNING_RATE,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # ====================================
+    # DEEPLABV3+ ARCHITECTURE (Atrous Spatial Pyramid Pooling)
+    # ====================================
+    # EfficientNet-B3 + DeepLabV3+ (~16M parameters) - Atrous convolutions
+    # Encoder: ~12M + DeepLabV3+ Head: ~4M - Dilated convolutions for dense prediction
+    "deeplabv3_efficientnet_b3_native_imagenet": {
+        "architecture": "deeplabv3",
+        "backbone": "timm-efficientnet-b3",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": BATCH_SIZE_DEEPLABV3,
+        "learning_rate": LEARNING_RATE,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # EfficientNet-B4 + DeepLabV3+ (~23M parameters) - Larger efficient backbone
+    # Encoder: ~19M + DeepLabV3+ Head: ~4M - Balanced efficiency and accuracy
+    "deeplabv3_efficientnet-b4_imagenet": {
+        "architecture": "deeplabv3",
+        "backbone": "efficientnet-b4",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": BATCH_SIZE_DEEPLABV3,
+        "learning_rate": LEARNING_RATE,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # TIMM-EfficientNet-B3 + DeepLabV3+ (~16M parameters) - TIMM version with atrous convolutions
+    # Encoder: ~12M + DeepLabV3+ Head: ~4M - TIMM implementation with dilated convolutions
+    "deeplabv3_efficientnet_b3_imagenet": {
+        "architecture": "deeplabv3",
+        "backbone": "timm-efficientnet-b3",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": BATCH_SIZE_DEEPLABV3,
+        "learning_rate": LEARNING_RATE,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # MiT-B2 + DeepLabV3+ (~29M parameters) - Transformer with atrous pyramids
+    # Encoder: ~25M + DeepLabV3+ Head: ~4M - Mix-transformer with dilated convolutions
+    "deeplabv3_mit_b2_imagenet": {
+        "architecture": "deeplabv3",
+        "backbone": "mit_b2",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": BATCH_SIZE_DEEPLABV3,
+        "learning_rate": LEARNING_RATE,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # ConvNeXt-Tiny + DeepLabV3+ (~32M parameters) - Modern ConvNet with ASPP
+    # Encoder: ~28M + DeepLabV3+ Head: ~4M - State-of-the-art ConvNet with atrous pyramids
+    "deeplabv3_convnext_tiny_imagenet": {
+        "architecture": "deeplabv3",
+        "backbone": "tu-convnext_tiny.fb_in22k_ft_in1k",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": BATCH_SIZE_DEEPLABV3,
+        "learning_rate": LEARNING_RATE,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # Swin-Tiny + DeepLabV3+ (~33M parameters) - Transformer with atrous pyramids
+    # Encoder: ~29M + DeepLabV3+ Head: ~4M - Hierarchical attention with ASPP
+    "deeplabv3_swin_tiny_imagenet": {
+        "architecture": "deeplabv3",
+        "backbone": "tu-swin_tiny_patch4_window7_224.ms_in22k_ft_in1k",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": BATCH_SIZE_DEEPLABV3,
+        "learning_rate": LEARNING_RATE * 0.5,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # EfficientNet-B3 + DeepLabV3+ (~15M parameters) - Original EfficientNet
+    # Encoder: ~12M + DeepLabV3+ Head: ~3M - Compound scaling with ASPP
+    "deeplabv3_efficientnet-b3_imagenet": {
+        "architecture": "deeplabv3",
+        "backbone": "efficientnet-b3",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": BATCH_SIZE_DEEPLABV3,
+        "learning_rate": LEARNING_RATE,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # ResNet152 + DeepLabV3+ (~63M parameters) - Very deep ResNet
+    # Encoder: ~60M + DeepLabV3+ Head: ~3M - Deep residual learning with ASPP
+    "deeplabv3_resnet152_imagenet": {
+        "architecture": "deeplabv3",
+        "backbone": "resnet152",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": BATCH_SIZE_DEEPLABV3,
+        "learning_rate": LEARNING_RATE,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # ====================================
+    # DPT ARCHITECTURE (Dense Prediction Transformer)
+    # ====================================
+    # EfficientNet-B3 + DPT (~14M parameters) - Transformer decoder
+    # Encoder: ~12M + DPT Decoder: ~2M - Vision transformer for dense prediction
+    "dpt_efficientnet_b3_imagenet": {
+        "architecture": "dpt",
+        "backbone": "timm-efficientnet-b3",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": BATCH_SIZE_UNET,
+        "learning_rate": LEARNING_RATE,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # MiT-B2 + DPT (~27M parameters) - Transformer encoder + transformer decoder
+    # Encoder: ~25M + DPT Decoder: ~2M - Full transformer architecture
+    "dpt_mit_b2_imagenet": {
+        "architecture": "dpt",
+        "backbone": "mit_b2",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": int(BATCH_SIZE_UNET / 2),
+        "learning_rate": LEARNING_RATE,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # ConvNeXt-Tiny + DPT (~30M parameters) - Hybrid architecture
+    # Encoder: ~28M + DPT Decoder: ~2M - Modern ConvNet with transformer decoder
+    "dpt_convnext_tiny_imagenet": {
+        "architecture": "dpt",
+        "backbone": "tu-convnext_tiny.fb_in22k_ft_in1k",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": int(BATCH_SIZE_UNET / 2),
+        "learning_rate": LEARNING_RATE,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # Swin-Tiny + DPT (~31M parameters) - Full transformer architecture
+    # Encoder: ~29M + DPT Decoder: ~2M - Hierarchical attention with transformer decoder
+    "dpt_swin_tiny_imagenet": {
+        "architecture": "dpt",
+        "backbone": "tu-swin_tiny_patch4_window7_224.ms_in22k_ft_in1k",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": int(BATCH_SIZE_UNET / 2),
+        "learning_rate": LEARNING_RATE * 0.5,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # ViT-Base + DPT (~86M parameters) - Dense Prediction Transformer
+    # Encoder: ~86M + Decoder: ~0.5M - Pure vision transformer for dense prediction
+    "dpt_vit_base_imagenet": {
+        "architecture": "dpt",
+        "backbone": "tu-vit_base_patch16_224.augreg_in21k_ft_in1k",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": int(BATCH_SIZE_UNET / 2),
+        "learning_rate": LEARNING_RATE,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # ====================================
+    # UPERNET ARCHITECTURE (Unified Perceptual Parsing)
+    # ====================================
+    # EfficientNet-B3 + UPerNet (~44M parameters) - Unified perceptual parsing
+    # Encoder: ~12M + UPerNet Decoder: ~32M - SOTA for scene parsing
+    "upernet_efficientnet_b3_imagenet": {
+        "architecture": "upernet",
+        "backbone": "timm-efficientnet-b3",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": BATCH_SIZE_UNET,
+        "learning_rate": LEARNING_RATE,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # MiT-B2 + UPerNet (~57M parameters) - Transformer with unified parsing
+    # Encoder: ~25M + UPerNet Decoder: ~32M - Mix-transformer with advanced decoder
+    "upernet_mit_b2_imagenet": {
+        "architecture": "upernet",
+        "backbone": "mit_b2",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": int(BATCH_SIZE_UNET / 2),
+        "learning_rate": LEARNING_RATE,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # ConvNeXt-Tiny + UPerNet (~60M parameters) - Modern ConvNet with unified parsing
+    # Encoder: ~28M + UPerNet Decoder: ~32M - State-of-the-art ConvNet with advanced decoder
+    "upernet_convnext_tiny_imagenet": {
+        "architecture": "upernet",
+        "backbone": "tu-convnext_tiny.fb_in22k_ft_in1k",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": int(BATCH_SIZE_UNET / 2),
+        "learning_rate": LEARNING_RATE,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # Swin-Tiny + UPerNet (~61M parameters) - Transformer with unified parsing
+    # Encoder: ~29M + UPerNet Decoder: ~32M - Hierarchical attention with advanced decoder
+    "upernet_swin_tiny_imagenet": {
+        "architecture": "upernet",
+        "backbone": "tu-swin_tiny_patch4_window7_224.ms_in22k_ft_in1k",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": int(BATCH_SIZE_UNET / 2),
+        "learning_rate": LEARNING_RATE * 0.5,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # ConvNeXt-Base + UPerNet (~122M parameters) - Unified Perceptual Parsing
+    # Encoder: ~89M + UPerNet Decoder: ~33M - SOTA for scene parsing
+    "upernet_convnext_base_imagenet": {
+        "architecture": "upernet",
+        "backbone": "tu-convnext_base.fb_in22k_ft_in1k",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": int(BATCH_SIZE_UNET / 2),
+        "learning_rate": LEARNING_RATE,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # ====================================
+    # SEGFORMER ARCHITECTURE (Efficient Transformer)
+    # ====================================
+    # EfficientNet-B3 + SegFormer (~14M parameters) - Hybrid approach
+    # Encoder: ~12M + SegFormer Head: ~2M - Efficient CNN + transformer head
+    "segformer_efficientnet_b3_imagenet": {
+        "architecture": "segformer",
+        "backbone": "timm-efficientnet-b3",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": BATCH_SIZE_UNET,
+        "learning_rate": LEARNING_RATE,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # MiT-B2 + SegFormer (Native - ~25M parameters) - Native SegFormer
+    # Encoder: ~25M + SegFormer Head: minimal - Designed specifically for segmentation
+    "segformer_mit_b2_native_imagenet": {
+        "architecture": "segformer",
+        "backbone": "mit_b2",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": BATCH_SIZE_UNET,
+        "learning_rate": LEARNING_RATE,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # MiT-B2 + SegFormer (~25M parameters) - Efficient segmentation transformer
+    # Encoder: ~25M + SegFormer Head: minimal - Hierarchical transformer for segmentation
+    "segformer_mit_b2_imagenet": {
+        "architecture": "segformer",
+        "backbone": "mit_b2",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": int(BATCH_SIZE_UNET / 2),
+        "learning_rate": LEARNING_RATE,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # ConvNeXt-Tiny + SegFormer (~30M parameters) - Hybrid modern architecture
+    # Encoder: ~28M + SegFormer Head: ~2M - Modern ConvNet with efficient transformer head
+    "segformer_convnext_tiny_imagenet": {
+        "architecture": "segformer",
+        "backbone": "tu-convnext_tiny.fb_in22k_ft_in1k",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": BATCH_SIZE_UNET,
+        "learning_rate": LEARNING_RATE,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+    # Swin-Tiny + SegFormer (~31M parameters) - Full transformer approach
+    # Encoder: ~29M + SegFormer Head: ~2M - Hierarchical attention with efficient head
+    "segformer_swin_tiny_imagenet": {
+        "architecture": "segformer",
+        "backbone": "tu-swin_tiny_patch4_window7_224.ms_in22k_ft_in1k",
+        "encoder_weights": "imagenet",
+        "img_size": IMG_SIZE,
+        "num_classes": NUM_CLASSES,
+        "batch_size": BATCH_SIZE_UNET,
+        "learning_rate": LEARNING_RATE * 0.5,
+        "epochs": EPOCHS,
+        "patience": PATIENCE,
+    },
+
+"""
